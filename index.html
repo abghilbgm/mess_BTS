@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Poll Meal Counter</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="description" content="A free, private tool to extract, map, and count Breakfast, Lunch, and Dinner from WhatsApp polls and group chat exports.">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header>
+      <h1>
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--whatsapp-green);"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        WhatsApp Meal Counter
+      </h1>
+      <p>Analyze WhatsApp polls & count breakfast, lunch, and dinner. 100% free & hosted on GitHub Pages.</p>
+    </header>
+
+    <main class="fade-in">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;">
+        
+        <!-- Input Section -->
+        <section class="card" aria-label="Input Method">
+          <h2 class="section-title">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
+            Choose Input Method
+          </h2>
+          
+          <!-- Tabs -->
+          <div class="tabs-container">
+            <button id="tab-paste" class="tab-btn active">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              Paste Poll Text
+            </button>
+            <button id="tab-upload" class="tab-btn">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              Upload Chat Export
+            </button>
+            <button id="tab-publish" class="tab-btn">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+              GitHub Hosting Guide
+            </button>
+          </div>
+          
+          <!-- Paste Text Area -->
+          <div id="content-paste" class="tab-content active">
+            <textarea id="raw-text-input" placeholder="Open WhatsApp Web -> Click 'View votes' on a poll -> Select all text in the drawer -> Copy and Paste it here...&#10;&#10;Example:&#10;Who is eating?&#10;Veg Lunch&#10;3 votes&#10;John&#10;Bob&#10;Non-Veg Dinner&#10;2 votes&#10;Alice"></textarea>
+          </div>
+          
+          <!-- Upload File Area -->
+          <div id="content-upload" class="tab-content">
+            <div id="drop-zone" class="drop-zone">
+              <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/></svg>
+              <div>
+                <p style="font-weight: 500;">Drag and drop your exported WhatsApp chat file (.txt)</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">or click to browse from files</p>
+              </div>
+              <input type="file" id="file-input" accept=".txt">
+            </div>
+            
+            <div id="file-info" class="file-info">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: var(--whatsapp-green);"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <span id="file-name" style="font-weight: 500; font-size: 0.95rem;">chat_export.txt</span>
+              </div>
+              <button id="remove-file-btn" class="btn-icon delete" title="Remove File">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- GitHub Hosting Guide Area -->
+          <div id="content-publish" class="tab-content">
+            <div style="font-size: 0.9rem; display: flex; flex-direction: column; gap: 1rem;">
+              <p>Host this page for <strong>free</strong> on GitHub Pages in 3 simple steps:</p>
+              <ol style="margin-left: 1.25rem; display: flex; flex-direction: column; gap: 0.6rem;">
+                <li>Create a free account on <a href="https://github.com" target="_blank" style="color: var(--whatsapp-green); font-weight: 600; text-decoration: none;">GitHub.com</a>.</li>
+                <li>Create a new public repository named <code>meal-counter</code>.</li>
+                <li>Upload these project files (<code>index.html</code>, <code>style.css</code>, <code>app.js</code>) directly to the repository and enable <strong>GitHub Pages</strong> under <strong>Settings -> Pages</strong>.</li>
+              </ol>
+              <p style="font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 0.5rem; margin-top: 0.5rem;">
+                Your private meal counter will be live at:<br>
+                <code style="color: var(--accent-blue);">https://&lt;your-username&gt;.github.io/meal-counter</code>
+              </p>
+            </div>
+          </div>
+          
+          <div style="margin-top: 1.5rem;">
+            <button id="parse-btn" class="btn" style="width: 100%;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 21l8.982-11.795M20.614 7.288L21.396 3l-8.982 11.795M11.854 14.794L3 12h7.854l1.83 2.794z"/></svg>
+              Analyze & Count Meals
+            </button>
+          </div>
+        </section>
+
+        <!-- User Guide -->
+        <section class="card" aria-label="Quick Guide">
+          <h2 class="section-title">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            Quick Instructions
+          </h2>
+          <div class="instructions-list">
+            <div class="instruction-step">
+              <span class="step-num">1</span>
+              <div class="step-details">
+                <h4>Open Poll in WhatsApp</h4>
+                <p>Find the meal poll in your WhatsApp Group Chat. Click <strong>"View votes"</strong> or <strong>"Poll details"</strong>.</p>
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-num">2</span>
+              <div class="step-details">
+                <h4>Copy Voter Data</h4>
+                <p>On WhatsApp Web, select/highlight all text inside the vote details side panel (or press <strong>Cmd+A / Ctrl+A</strong> inside the panel) and copy it.</p>
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-num">3</span>
+              <div class="step-details">
+                <h4>Paste & Match</h4>
+                <p>Paste the copied text in the input tab and click <strong>Analyze</strong>. Define which options represent Breakfast, Lunch (Veg/Non-Veg), or Dinner (Veg/Non-Veg).</p>
+              </div>
+            </div>
+            <div class="instruction-step">
+              <span class="step-num">💡</span>
+              <div class="step-details">
+                <h4>Mobile Tip</h4>
+                <p>To use mobile data, click <strong>"Export Chat"</strong> (without media) inside WhatsApp settings, upload the <code>_chat.txt</code> file to the <strong>Upload Chat Export</strong> tab, and we'll extract the votes automatically.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Result Visualizer Container (Initially Hidden) -->
+      <div id="results-container" style="display: none; margin-top: 2rem;">
+        
+        <!-- Month Filter Card -->
+        <div class="card" style="margin-bottom: 2rem; padding: 1.5rem 2rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 250px;">
+            <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem;">Select Period / Month</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">Filter meal calculations and summaries by specific month.</p>
+          </div>
+          <div style="width: 250px;">
+            <select id="month-filter" style="font-size: 1rem; padding: 0.75rem; border-radius: var(--border-radius-md); font-weight: 500; cursor: pointer;">
+              <option value="all">All Months (Cumulative)</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Summary Stats and Meal Mapping Configurations -->
+        <div class="results-grid">
+          
+          <!-- Left side: Mapping and Calculation settings -->
+          <div class="card">
+            <h2 class="section-title">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+              Configure Meal Options
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+              Map each unique poll choice to how many Breakfasts, Lunches (Veg/NV), and Dinners (Veg/NV) it represents.
+            </p>
+            
+            <!-- Dynamic Mapping Items go here -->
+            <div id="mapping-container" class="mapping-list"></div>
+            
+            <div style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+              <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">Set Price per Meal (Optional)</h3>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem;">
+                <div class="form-group">
+                  <label for="breakfast-cost-input">Breakfast (₹)</label>
+                  <input type="number" id="breakfast-cost-input" min="0" placeholder="e.g. 50">
+                </div>
+                <div class="form-group">
+                  <label for="lunch-veg-cost-input">Lunch Veg (₹)</label>
+                  <input type="number" id="lunch-veg-cost-input" min="0" placeholder="e.g. 100">
+                </div>
+                <div class="form-group">
+                  <label for="lunch-nonveg-cost-input">Lunch NV (₹)</label>
+                  <input type="number" id="lunch-nonveg-cost-input" min="0" placeholder="e.g. 150">
+                </div>
+                <div class="form-group">
+                  <label for="dinner-veg-cost-input">Dinner Veg (₹)</label>
+                  <input type="number" id="dinner-veg-cost-input" min="0" placeholder="e.g. 120">
+                </div>
+                <div class="form-group">
+                  <label for="dinner-nonveg-cost-input">Dinner NV (₹)</label>
+                  <input type="number" id="dinner-nonveg-cost-input" min="0" placeholder="e.g. 180">
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right side: Quick Summaries & Output -->
+          <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <h2 class="section-title">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                Meal Summary
+              </h2>
+              
+              <!-- Stats Cards -->
+              <div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="stat-card">
+                  <div class="stat-label">Breakfast</div>
+                  <div id="total-breakfast-count" class="stat-value total">0</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Lunch (Veg/NV)</div>
+                  <div class="stat-value" style="font-size: 1.4rem; font-weight: 700; margin-top: 0.25rem;">
+                    <span id="total-lunchveg-count" style="color: var(--whatsapp-green);">0</span>
+                    <span style="color: var(--text-muted);">/</span>
+                    <span id="total-lunchnonveg-count" style="color: var(--accent-orange);">0</span>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Dinner (Veg/NV)</div>
+                  <div class="stat-value" style="font-size: 1.4rem; font-weight: 700; margin-top: 0.25rem;">
+                    <span id="total-dinnerveg-count" style="color: var(--whatsapp-green);">0</span>
+                    <span style="color: var(--text-muted);">/</span>
+                    <span id="total-dinnernonveg-count" style="color: var(--accent-orange);">0</span>
+                  </div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Total Meals</div>
+                  <div id="total-meals-count" class="stat-value total">0</div>
+                </div>
+              </div>
+              
+              <div class="stat-card" style="margin-top: 1rem; margin-bottom: 1.5rem; text-align: left; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <span class="stat-label" style="font-size: 1rem;">Total Expense</span>
+                <span id="total-cost-val" style="font-size: 1.8rem; font-weight: 700; color: var(--text-primary);">₹0</span>
+              </div>
+            </div>
+            
+            <div>
+              <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary);">WhatsApp Message Copy</h3>
+              <div id="whatsapp-summary" class="output-box"></div>
+              
+              <div class="btn-group">
+                <button id="copy-btn" class="btn" style="flex: 1;">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-5 10h6m-6-4h6"/></svg>
+                  Copy Summary
+                </button>
+                <button id="export-csv-btn" class="btn btn-secondary">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  Export CSV
+                </button>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+        
+        <!-- Detailed Voters List -->
+        <section class="card" style="margin-top: 2rem;" aria-label="Detailed Votes Breakdown">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+            <h2 class="section-title" style="margin-bottom: 0;">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+              Voter Details
+            </h2>
+            <button id="add-person-btn" class="btn btn-secondary" style="padding: 0.6rem 1.2rem; font-size: 0.9rem;">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Add Person
+            </button>
+          </div>
+          
+          <div class="search-bar">
+            <input type="text" id="search-input" class="search-input" placeholder="Search voter name or option voted...">
+          </div>
+          
+          <div class="voters-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Voter Name</th>
+                  <th title="Breakfast" style="text-align: center; width: 60px;">B</th>
+                  <th title="Lunch Veg" style="text-align: center; width: 70px;">L-Veg</th>
+                  <th title="Lunch Non-Veg" style="text-align: center; width: 70px;">L-NV</th>
+                  <th title="Dinner Veg" style="text-align: center; width: 70px;">D-Veg</th>
+                  <th title="Dinner Non-Veg" style="text-align: center; width: 70px;">D-NV</th>
+                  <th title="Total Meals" style="text-align: center; width: 80px;">Total</th>
+                  <th title="Price" style="text-align: right; width: 100px;">Price</th>
+                  <th style="text-align: center; width: 100px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="voters-table-body">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+        
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast" role="alert">
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <span id="toast-text">Success message</span>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div id="edit-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Edit Vote Details</h3>
+        <button class="btn-icon" onclick="closeModal()" title="Close">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="edit-name">Voter Name</label>
+          <input type="text" id="edit-name" placeholder="Enter person's name">
+        </div>
+        <div class="form-group">
+          <label for="edit-option">Mapped Option</label>
+          <select id="edit-option">
+            <!-- Dynamic Options list injected here -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="edit-month">Month / Period</label>
+          <select id="edit-month">
+            <!-- Dynamic Months list injected here -->
+          </select>
+        </div>
+        <div class="btn-group" style="margin-top: 1rem;">
+          <button id="modal-cancel" class="btn btn-secondary" style="flex: 1;">Cancel</button>
+          <button id="modal-save" class="btn" style="flex: 1;">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
