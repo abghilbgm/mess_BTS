@@ -1,52 +1,58 @@
-# WhatsApp Meal Counter
+# Mess Tracker & Smart WhatsApp Poll Scraper V3
 
-A free, private, client-side web application designed to parse, aggregate, and count meals per person from WhatsApp poll results and chat exports. The application tracks Breakfast, Lunch (Veg vs Non-Veg), and Dinner (Veg vs Non-Veg) for each person, filters by month, calculates bills, and is ready to deploy directly to GitHub Pages for free.
+This repository contains an end-to-end system for automatically scraping meal poll votes from WhatsApp Web and visualizing the data in a beautiful, glassmorphic React dashboard.
 
-## Features
-
-- **Detailed Meal Categories**: Tracks Breakfast (B), Lunch Veg (LV), Lunch Non-Veg (LNV), Dinner Veg (DV), and Dinner Non-Veg (DNV) separately.
-- **Period Filter (Month-Wise)**: Easily filter votes, calculations, tables, and bills by a specific month (e.g. "July 2026") or view cumulative stats.
-- **Custom Meal Option Mapping**: Maps any poll option or message text (e.g. "Breakfast Only", "Veg Lunch + Dinner", "Guest L-NV (x2)") to custom meal category counts.
-- **Flexible Billing Engine**: Set optional prices for Breakfast, Lunch Veg, Lunch NV, Dinner Veg, and Dinner NV to calculate individual voter bills and grand total costs.
-- **WhatsApp Message Copy**: Generates a pre-formatted, easy-to-read text summary showing total counts and individual breakdowns to paste directly back to the WhatsApp group.
-- **Export to CSV**: Export the processed data table into a spreadsheet (.csv) with one click.
-- **100% Free & Private**: Runs entirely in the sandbox of your browser. No databases, servers, or external network requests are used.
+The system is split into two parts:
+1. **whatsapp-poll-scraper-v3/** - A Smart Chrome Extension that automates reading WhatsApp polls.
+2. **mess-tracker-v3/** - A modern React (Vite) application that parses the scraped data and generates charts and analytics.
 
 ---
 
-## Hosting on GitHub Pages (For Free)
+## 1. How to Setup and Run the WhatsApp Scraper
 
-You can host this tool on GitHub for free so your group members or administrators can access it anytime:
+Since WhatsApp Web changes frequently, this scraper is designed as a custom Chrome Extension that mimics human behavior to safely read poll results.
 
-1. **Create a GitHub Account**: Go to [GitHub.com](https://github.com) and sign up for a free account.
-2. **Create a Repository**:
-   - Click **New** (or "+" in the top right -> **New repository**).
-   - Name the repository `meal-counter` (or any name you prefer).
-   - Set the repository visibility to **Public**.
-   - Click **Create repository**.
-3. **Upload Files**:
-   - Click **"uploading an existing file"** in the setup screen.
-   - Drag and drop the three project files:
-     - `index.html`
-     - `style.css`
-     - `app.js`
-   - Click **Commit changes** at the bottom of the page.
-4. **Enable GitHub Pages**:
-   - Go to the **Settings** tab of your repository.
-   - Click **Pages** in the left-hand sidebar under the "Code and automation" section.
-   - Under **Build and deployment -> Branch**, select **main** (or your active branch) and select `/ (root)` folder.
-   - Click **Save**.
-5. **Get Your URL**:
-   - Within 1-2 minutes, refresh the page. You will see a banner at the top of the Pages section stating: *"Your site is live at..."*.
-   - The URL will look like: `https://<your-username>.github.io/meal-counter/`
+### Installation
+1. Download or clone this repository to your local machine.
+2. Open Google Chrome and navigate to `chrome://extensions/`.
+3. Enable **Developer mode** (toggle in the top right corner).
+4. Click the **Load unpacked** button in the top left.
+5. Select the `whatsapp-poll-scraper-v3` folder from this repository.
+
+### Usage
+1. Open WhatsApp Web (`web.whatsapp.com`) and open the group chat containing your polls.
+2. Click the puzzle piece icon 🧩 in the top right of your Chrome browser and click **Smart Poll Scraper V3**.
+3. Scroll to the bottom of the chat, and click **Start Scraping**.
+4. **Important**: Let the extension run without switching tabs. It will automatically open the poll sidebars, copy the names, close the sidebar, and scroll up to load older messages.
+5. Once it has collected enough data, click **Stop Scraping** and then **Download Results**. It will save a file called `whatsapp_polls.txt`.
 
 ---
 
-## Technical Mapping Configurations
+## 2. How to Setup and Run the Dashboard
 
-Once you parse your data (using pasted poll details or uploaded chat export):
-- Under **Configure Meal Options**, you will see a list of all options detected from the poll or messages.
-- For each option, define the counts for B (Breakfast), LV (Lunch Veg), LNV (Lunch NV), DV (Dinner Veg), and DNV (Dinner NV).
-- Input optional costs per meal in the **Price per Meal** section.
-- Use the **Month / Period** dropdown at the top of the results to see stats, voter tables, and WhatsApp messages for a specific month.
-- Click **"Copy Summary"** to grab the text block for sharing, or click **"Export CSV"** to download the spreadsheet.
+The dashboard takes the raw `whatsapp_polls.txt` file and turns it into readable analytics (who ate what on which days).
+
+### Prerequisites
+You need to have [Node.js](https://nodejs.org/) installed on your computer.
+
+### Installation & Running
+1. Open your terminal or command prompt.
+2. Navigate into the dashboard folder:
+   ```bash
+   cd mess-tracker-v3
+   ```
+3. Install the required dependencies:
+   ```bash
+   npm install
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+5. Open the local link provided in your terminal (usually `http://localhost:5173/`).
+
+### Visualizing Your Data
+1. On the dashboard web page, click the **"Upload Scraped Polls"** button.
+2. Select the `whatsapp_polls.txt` file you downloaded from the scraper.
+3. The app will instantly parse the text and generate charts for Daily Attendance, Meal Breakdown, and Top Eaters!
+4. You can also click **Export to CSV** to download the structured data into Excel.
