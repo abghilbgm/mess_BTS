@@ -342,34 +342,76 @@ export function parseScrapedPollsText(text, fallbackDate = new Date()) {
   const votes = [];
   const optionsDetected = new Set();
   
-  const currentMonthYear = `${monthNames[fallbackDate.getMonth()]} ${fallbackDate.getFullYear()}`;
-  const currentDate = `${String(fallbackDate.getDate()).padStart(2, '0')}/${String(fallbackDate.getMonth() + 1).padStart(2, '0')}/${fallbackDate.getFullYear()}`;
-  
   polls.forEach((poll, index) => {
     let cleanPoll = poll.replace('===POLL_END===', '').trim();
     let lines = cleanPoll.split('\n').map(l => l.trim()).filter(Boolean);
     
-    let pollName = `Scraped Poll ${index + 1}`;
-    optionsDetected.add(pollName);
+    if (lines.length < 3) return;
     
-    for (let i = 0; i < lines.length; i++) {
+    let mealName = "Unknown Meal";
+    let startIndex = 0;
+    if (lines[0].toLowerCase().includes('poll details')) {
+      mealName = lines[1];
+      startIndex = 2;
+    } else {
+      mealName = lines[0];
+      startIndex = 1;
+    }
+    
+    let currentOption = mealName;
+    
+    for (let i = startIndex; i < lines.length; i++) {
       let line = lines[i];
-      // Skip timestamps
-      if (line.match(/^\d{1,2}\/\d{1,2}\/\d{4}\s+at\s+\d{1,2}:\d{2}\s*(AM|PM)/i)) {
+      
+      if (line.match(/\d+\s+of\s+\d+\s+members\s+voted/i)) continue;
+      if (line.match(/^See all\s*\(\d+\s*more\)/i)) continue;
+      
+      if (lines[i+1] && lines[i+1].match(/^(\d+|no)\s+votes?$/i)) {
+        currentOption = line;
+        optionsDetected.add(currentOption);
+        i++; 
         continue;
       }
       
-      let voterName = line.replace(/^[•\-\*\s\d]+\.?\s*/, '').trim();
-      if (!voterName) continue;
+      if (line.match(/^(\d+|no)\s+votes?$/i)) continue;
       
-      votes.push({
-        id: Date.now() + Math.random().toString(36).substr(2, 9),
-        name: voterName,
-        option: pollName,
-        monthYear: currentMonthYear,
-        rawDate: currentDate,
-        isManual: false
-      });
+      const dateMatch = line.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+at\s+(\d{1,2}:\d{2}\s*(?:AM|PM|am|pm))/);
+      if (dateMatch) {
+         let name = "";
+         let phone = "";
+         let month = parseInt(dateMatch[1]);
+         let day = parseInt(dateMatch[2]);
+         let year = parseInt(dateMatch[3]);
+         
+         if (month < 1 || month > 12) month = fallbackDate.getMonth() + 1;
+         
+         const rawDate = `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
+         const monthYear = `${monthNames[month - 1]} ${year}`;
+         
+         if (i - 1 >= 0) {
+            let prev1 = lines[i-1];
+            if (prev1.match(/^\+\d+/)) {
+               if (i - 2 >= 0) {
+                  name = lines[i-2];
+                  phone = prev1;
+               }
+            } else {
+               name = prev1;
+            }
+         }
+         
+         if (name) {
+             name = name.replace(/^~ ?/, '').trim();
+             votes.push({
+                id: Date.now() + Math.random().toString(36).substr(2, 9),
+                name: name,
+                option: `${currentOption} (${mealName})`,
+                monthYear: monthYear,
+                rawDate: rawDate,
+                isManual: false
+             });
+         }
+      }
     }
   });
   
